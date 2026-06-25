@@ -1,0 +1,1510 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>My Planner ✨</title>
+<style>
+  :root {
+    --bg: #EEF6FF;
+    --bg2: #FFFFFF;
+    --bg3: #F0F7FF;
+    --card: #FFFFFF;
+    --text: #1a2640;
+    --text2: #5a6a82;
+    --text3: #8a9ab2;
+    --border: rgba(100,150,220,0.18);
+    --accent: #6CB4F0;
+    --star: #F7C948;
+    --shadow: 0 2px 12px rgba(100,150,220,0.10);
+
+    --s-purple: #E8E6FF; --s-purple-t: #4A3DB5;
+    --s-green:  #DFFAEA; --s-green-t:  #1B7A45;
+    --s-blue:   #DAEEFF; --s-blue-t:   #1B5FAA;
+    --s-yellow: #FFF7D6; --s-yellow-t: #9A6E00;
+    --s-pink:   #FFE6F0; --s-pink-t:   #A0285A;
+    --s-teal:   #D8F5F0; --s-teal-t:   #0D6B5A;
+    --s-orange: #FFE8D6; --s-orange-t: #A04A00;
+    --s-red:    #FFE0E0; --s-red-t:    #A02020;
+  }
+  [data-theme="dark"] {
+    --bg: #0D1B2E;
+    --bg2: #132240;
+    --bg3: #0A1525;
+    --card: #162842;
+    --text: #E8F0FC;
+    --text2: #8AACD4;
+    --text3: #4D6A8A;
+    --border: rgba(80,130,200,0.20);
+    --accent: #4A90D9;
+    --star: #F7C948;
+    --shadow: 0 2px 16px rgba(0,10,30,0.40);
+
+    --s-purple: #251E52; --s-purple-t: #A99EF5;
+    --s-green:  #0E2E1C; --s-green-t:  #6ED4A0;
+    --s-blue:   #0E2040; --s-blue-t:   #7AB8F5;
+    --s-yellow: #2A2000; --s-yellow-t: #F5D060;
+    --s-pink:   #2E1020; --s-pink-t:   #F59AC0;
+    --s-teal:   #0A2420; --s-teal-t:   #60D4C0;
+    --s-orange: #2A1400; --s-orange-t: #F5A060;
+    --s-red:    #2A0A0A; --s-red-t:    #F59090;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: 90px;
+    font-size: 15px;
+    line-height: 1.5;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* TOP BAR */
+  .topbar {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    box-shadow: var(--shadow);
+  }
+  .topbar-title { font-size: 17px; font-weight: 700; color: var(--text); }
+  .topbar-title span { font-size: 13px; font-weight: 400; color: var(--text2); margin-left: 6px; }
+  .theme-btn {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 20px; padding: 6px 12px; cursor: pointer;
+    font-size: 16px; color: var(--text); transition: all 0.2s;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .theme-btn:active { transform: scale(0.95); }
+
+  /* NAV */
+  .nav {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding: 6px 0 env(safe-area-inset-bottom, 6px);
+    box-shadow: 0 -2px 12px rgba(100,150,220,0.10);
+  }
+  .nav-btn {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    gap: 3px; padding: 6px 0; cursor: pointer; border: none; background: none;
+    color: var(--text3); font-size: 10px; transition: color 0.2s;
+  }
+  .nav-btn .icon { font-size: 22px; }
+  .nav-btn.active { color: var(--accent); }
+  .nav-btn:active { transform: scale(0.93); }
+
+  /* PAGES */
+  .page { display: none; padding: 16px; animation: fadeIn 0.2s ease; }
+  .page.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* SECTION HEADER */
+  .sec-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px; margin-top: 20px;
+  }
+  .sec-head:first-child { margin-top: 0; }
+  .sec-title { font-size: 14px; font-weight: 700; color: var(--text2); letter-spacing: 0.5px; text-transform: uppercase; }
+  .sec-badge {
+    font-size: 11px; padding: 2px 8px; border-radius: 12px;
+    background: var(--s-blue); color: var(--s-blue-t); font-weight: 600;
+  }
+
+  /* CARD */
+  .card {
+    background: var(--card); border-radius: 16px; border: 1px solid var(--border);
+    padding: 14px 16px; margin-bottom: 10px; box-shadow: var(--shadow);
+    transition: background 0.3s;
+  }
+  .card-sm { padding: 10px 14px; margin-bottom: 8px; }
+
+  /* DATE TABS */
+  .date-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 16px; scrollbar-width: none; }
+  .date-tabs::-webkit-scrollbar { display: none; }
+  .date-tab {
+    flex-shrink: 0; min-width: 52px; padding: 8px 10px; border-radius: 12px;
+    text-align: center; cursor: pointer; border: 1px solid var(--border);
+    background: var(--card); transition: all 0.2s; color: var(--text2);
+  }
+  .date-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .date-tab .dt-day { font-size: 10px; font-weight: 600; text-transform: uppercase; }
+  .date-tab .dt-num { font-size: 18px; font-weight: 700; line-height: 1.1; }
+  .date-tab:active { transform: scale(0.95); }
+
+  /* TASK ITEM */
+  .task-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+  }
+  .task-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .task-check {
+    width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--border);
+    flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s; background: transparent;
+  }
+  .task-check.done { background: var(--accent); border-color: var(--accent); }
+  .task-check.done::after { content: '✓'; color: white; font-size: 13px; font-weight: 700; }
+  .task-info { flex: 1; min-width: 0; }
+  .task-time { font-size: 11px; color: var(--text3); font-weight: 600; }
+  .task-name { font-size: 14px; color: var(--text); }
+  .task-name.done { text-decoration: line-through; color: var(--text3); }
+  .task-cat {
+    font-size: 10px; padding: 2px 7px; border-radius: 8px;
+    font-weight: 600; flex-shrink: 0;
+  }
+  .task-sub {
+    font-size: 12px; color: var(--text2); margin-top: 4px; padding-left: 32px;
+  }
+  .subtask-list { padding-left: 32px; margin-top: 4px; }
+  .subtask-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 4px 0; font-size: 13px; color: var(--text2);
+  }
+  .subtask-check {
+    width: 16px; height: 16px; border-radius: 4px; border: 1.5px solid var(--border);
+    flex-shrink: 0; cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .subtask-check.done { background: var(--accent); border-color: var(--accent); }
+  .subtask-check.done::after { content: '✓'; color: white; font-size: 10px; }
+
+  /* WEEKLY VIEW */
+  .week-grid { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+  .week-grid::-webkit-scrollbar { display: none; }
+  .week-col { flex-shrink: 0; min-width: 90px; }
+  .week-col-head {
+    text-align: center; font-size: 11px; font-weight: 700; color: var(--text2);
+    padding: 6px 4px; text-transform: uppercase;
+  }
+  .week-task {
+    margin-bottom: 4px; padding: 6px 8px; border-radius: 8px;
+    font-size: 11px; cursor: pointer; transition: opacity 0.2s;
+  }
+  .week-task.done { opacity: 0.45; }
+
+  /* HABIT TRACKER */
+  .habit-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+  }
+  .habit-item:last-child { border-bottom: none; }
+  .habit-emoji { font-size: 20px; width: 28px; text-align: center; flex-shrink: 0; }
+  .habit-info { flex: 1; }
+  .habit-name { font-size: 14px; color: var(--text); font-weight: 500; }
+  .habit-streak { font-size: 11px; color: var(--text3); margin-top: 1px; }
+  .habit-dots { display: flex; gap: 4px; flex-shrink: 0; }
+  .habit-dot {
+    width: 26px; height: 26px; border-radius: 8px; border: 1.5px solid var(--border);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 600; color: var(--text3);
+    transition: all 0.18s; background: transparent;
+    flex-direction: column; gap: 1px;
+  }
+  .habit-dot .dot-day { font-size: 8px; color: var(--text3); }
+  .habit-dot.done { border-color: transparent; color: white; }
+  .habit-dot.done .dot-day { color: rgba(255,255,255,0.8); }
+  .habit-dot.skip { background: var(--bg3); }
+  .habit-dot.today-dot { border-style: dashed; border-color: var(--accent); }
+
+  /* PROGRESS BAR */
+  .prog-bar { height: 6px; border-radius: 3px; background: var(--bg3); overflow: hidden; margin-top: 6px; }
+  .prog-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
+
+  /* GOALS */
+  .goal-item { display: flex; gap: 12px; align-items: flex-start; }
+  .goal-icon { font-size: 24px; flex-shrink: 0; margin-top: 2px; }
+  .goal-body { flex: 1; }
+  .goal-title { font-size: 14px; font-weight: 600; color: var(--text); }
+  .goal-desc { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  .goal-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+  .goal-tag {
+    font-size: 10px; padding: 2px 8px; border-radius: 8px;
+    font-weight: 600;
+  }
+
+  /* REMINDER */
+  .remind-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+  }
+  .remind-item:last-child { border-bottom: none; }
+  .remind-time {
+    font-size: 14px; font-weight: 700; color: var(--accent);
+    min-width: 52px; flex-shrink: 0;
+  }
+  .remind-name { flex: 1; font-size: 14px; color: var(--text); }
+  .remind-days { display: flex; gap: 3px; }
+  .remind-day {
+    width: 20px; height: 20px; border-radius: 50%; font-size: 9px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--bg3); color: var(--text3);
+  }
+  .remind-day.on { background: var(--accent); color: white; }
+  .remind-toggle {
+    width: 36px; height: 20px; border-radius: 10px; background: var(--bg3);
+    border: 1px solid var(--border); cursor: pointer; position: relative; transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  .remind-toggle.on { background: var(--accent); border-color: var(--accent); }
+  .remind-toggle::after {
+    content: ''; position: absolute; top: 2px; left: 2px;
+    width: 14px; height: 14px; border-radius: 50%; background: white;
+    transition: left 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+  .remind-toggle.on::after { left: 18px; }
+
+  /* VOCAB / FLASHCARD */
+  .vocab-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 0; border-bottom: 1px solid var(--border);
+  }
+  .vocab-item:last-child { border-bottom: none; }
+  .vocab-word { font-size: 15px; font-weight: 600; color: var(--text); min-width: 80px; }
+  .vocab-lang { font-size: 10px; padding: 1px 5px; border-radius: 6px; font-weight: 700; }
+  .vocab-meaning { font-size: 13px; color: var(--text2); flex: 1; }
+  .flashcard-area {
+    perspective: 800px; height: 180px; cursor: pointer; margin: 8px 0 16px;
+  }
+  .flashcard-inner {
+    position: relative; width: 100%; height: 100%;
+    transform-style: preserve-3d; transition: transform 0.5s ease;
+  }
+  .flashcard-inner.flipped { transform: rotateY(180deg); }
+  .flashcard-face {
+    position: absolute; inset: 0; border-radius: 16px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 20px; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    border: 1px solid var(--border);
+  }
+  .flashcard-front { background: var(--card); }
+  .flashcard-back { background: var(--s-blue); transform: rotateY(180deg); }
+  .flashcard-word { font-size: 28px; font-weight: 700; color: var(--text); }
+  .flashcard-hint { font-size: 12px; color: var(--text3); margin-top: 6px; }
+  .flashcard-meaning { font-size: 20px; font-weight: 600; color: var(--s-blue-t); }
+  .flashcard-nav { display: flex; gap: 10px; justify-content: center; }
+  .fc-btn {
+    padding: 8px 20px; border-radius: 20px; font-size: 14px; font-weight: 600; cursor: pointer;
+    border: 1.5px solid var(--border); background: var(--card); color: var(--text);
+    transition: all 0.15s;
+  }
+  .fc-btn:active { transform: scale(0.95); }
+  .fc-btn.good { background: var(--s-green); border-color: var(--s-green-t); color: var(--s-green-t); }
+  .fc-btn.again { background: var(--s-orange); border-color: var(--s-orange-t); color: var(--s-orange-t); }
+
+  /* FAB */
+  .fab {
+    position: fixed; bottom: 80px; right: 20px; z-index: 99;
+    width: 52px; height: 52px; border-radius: 50%;
+    background: var(--accent); color: white; font-size: 26px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; box-shadow: 0 4px 16px rgba(100,180,240,0.35);
+    border: none; transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .fab:active { transform: scale(0.92); box-shadow: 0 2px 8px rgba(100,180,240,0.25); }
+
+  /* MODAL */
+  .modal-bg {
+    display: none; position: fixed; inset: 0; z-index: 200;
+    background: rgba(0,0,0,0.45); align-items: flex-end; justify-content: center;
+  }
+  .modal-bg.open { display: flex; }
+  .modal {
+    background: var(--bg2); border-radius: 24px 24px 0 0;
+    padding: 20px 16px 36px; width: 100%; max-width: 480px;
+    animation: slideUp 0.25s ease;
+  }
+  @keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .modal-handle { width: 40px; height: 4px; border-radius: 2px; background: var(--border); margin: 0 auto 16px; }
+  .modal-title { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 14px; }
+  .input-field {
+    width: 100%; padding: 10px 12px; border-radius: 10px;
+    border: 1.5px solid var(--border); background: var(--bg3); color: var(--text);
+    font-size: 14px; margin-bottom: 10px; outline: none;
+    transition: border-color 0.2s;
+  }
+  .input-field:focus { border-color: var(--accent); }
+  .btn-row { display: flex; gap: 8px; margin-top: 6px; }
+  .btn {
+    flex: 1; padding: 12px; border-radius: 12px; font-size: 14px; font-weight: 600;
+    cursor: pointer; border: none; transition: all 0.15s;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-cancel { background: var(--bg3); color: var(--text2); }
+
+  /* STAR DECO */
+  .star-deco {
+    position: fixed; pointer-events: none; z-index: 0;
+    animation: twinkle 3s ease-in-out infinite;
+  }
+  @keyframes twinkle { 0%,100% { opacity: 0.4; transform: scale(1); } 50% { opacity: 1; transform: scale(1.3); } }
+
+  /* COURSE PLANNER */
+  .course-week { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+  .course-week::-webkit-scrollbar { display: none; }
+  .course-card {
+    flex-shrink: 0; min-width: 120px; border-radius: 14px;
+    padding: 10px 12px; border: 1.5px solid var(--border);
+    background: var(--card); text-align: center;
+  }
+  .course-card.current { border-color: var(--accent); }
+  .course-card .cw-num { font-size: 10px; font-weight: 700; color: var(--text3); text-transform: uppercase; }
+  .course-card .cw-name { font-size: 13px; font-weight: 600; color: var(--text); margin: 4px 0; }
+  .course-card .cw-days { font-size: 11px; color: var(--text2); }
+  .mini-prog { height: 4px; border-radius: 2px; background: var(--bg3); margin-top: 6px; overflow: hidden; }
+  .mini-fill { height: 100%; border-radius: 2px; background: var(--accent); }
+
+  /* WATER TRACKER */
+  .water-cups { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+  .water-cup {
+    width: 38px; height: 38px; border-radius: 10px; border: 1.5px solid var(--border);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 20px; transition: all 0.15s; background: transparent;
+  }
+  .water-cup.filled { background: #DAEEFF; border-color: #6CB4F0; }
+  .water-cup.filled .cup-ico { filter: none; }
+  .water-cup:active { transform: scale(0.92); }
+
+  /* EVENTS */
+  .event-item {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+  }
+  .event-item:last-child { border-bottom: none; }
+  .event-date-box {
+    min-width: 44px; text-align: center; padding: 6px;
+    border-radius: 10px; background: var(--s-purple); flex-shrink: 0;
+  }
+  .event-month { font-size: 9px; font-weight: 700; color: var(--s-purple-t); text-transform: uppercase; }
+  .event-day-num { font-size: 20px; font-weight: 700; color: var(--s-purple-t); line-height: 1; }
+  .event-name { font-size: 14px; font-weight: 600; color: var(--text); }
+  .event-desc { font-size: 12px; color: var(--text2); margin-top: 2px; }
+
+  /* TODO LIST */
+  .todo-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+  }
+  .todo-item:last-child { border-bottom: none; }
+  .todo-check {
+    width: 20px; height: 20px; border-radius: 6px; border: 1.5px solid var(--border);
+    flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .todo-check.done { background: var(--s-green); border-color: var(--s-green-t); }
+  .todo-check.done::after { content: '✓'; color: var(--s-green-t); font-size: 12px; font-weight: 700; }
+  .todo-text { flex: 1; font-size: 14px; color: var(--text); }
+  .todo-text.done { text-decoration: line-through; color: var(--text3); }
+  .todo-del { color: var(--text3); font-size: 18px; cursor: pointer; padding: 2px 4px; }
+
+  /* VIEW SWITCH */
+  .view-switch { display: flex; gap: 0; background: var(--bg3); border-radius: 10px; padding: 3px; margin-bottom: 16px; }
+  .vs-btn {
+    flex: 1; padding: 6px; border-radius: 8px; text-align: center;
+    font-size: 13px; font-weight: 600; cursor: pointer; color: var(--text2);
+    transition: all 0.2s; border: none; background: transparent;
+  }
+  .vs-btn.active { background: var(--card); color: var(--accent); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+
+  /* STARS for dark mode */
+  .stars-wrap {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
+    opacity: 0; transition: opacity 0.4s;
+  }
+  [data-theme="dark"] .stars-wrap { opacity: 1; }
+  .star {
+    position: absolute; border-radius: 50%; background: white;
+    animation: twinkle var(--dur, 3s) ease-in-out infinite;
+    animation-delay: var(--delay, 0s);
+  }
+
+  .page-wrap { position: relative; z-index: 1; }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body data-theme="light">
+
+<!-- Stars (dark mode) -->
+<div class="stars-wrap" id="starsWrap"></div>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-title">✨ My Planner <span id="topDate"></span></div>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">🌙 Dark</button>
+</div>
+
+<!-- FAB -->
+<button class="fab" id="fabBtn" onclick="openFab()">＋</button>
+
+<!-- PAGES -->
+<div class="page-wrap">
+
+<!-- ===== PAGE 1: DAILY / WEEKLY ===== -->
+<div class="page active" id="page-planner">
+  <div class="view-switch">
+    <button class="vs-btn active" onclick="switchView('daily', this)">📅 Daily</button>
+    <button class="vs-btn" onclick="switchView('weekly', this)">🗓 Weekly</button>
+    <button class="vs-btn" onclick="switchView('events', this)">📌 Events</button>
+  </div>
+
+  <!-- DAILY VIEW -->
+  <div id="view-daily">
+    <div class="date-tabs" id="dateTabs"></div>
+    <div id="dailyTasks"></div>
+    <div class="sec-head" style="margin-top:16px;">
+      <span class="sec-title">💧 Water Today</span>
+      <span id="waterLabel" style="font-size:13px;color:var(--text2);"></span>
+    </div>
+    <div class="card card-sm">
+      <div class="water-cups" id="waterCups"></div>
+    </div>
+    <!-- Course this week -->
+    <div class="sec-head">
+      <span class="sec-title">📚 Course This Week</span>
+    </div>
+    <div class="card card-sm" id="currentCourseCard"></div>
+  </div>
+
+  <!-- WEEKLY VIEW -->
+  <div id="view-weekly" style="display:none;">
+    <div class="week-grid" id="weekGrid"></div>
+    <div class="sec-head" style="margin-top:20px;">
+      <span class="sec-title">🎓 Course Queue</span>
+    </div>
+    <div class="course-week" id="courseQueue"></div>
+  </div>
+
+  <!-- EVENTS VIEW -->
+  <div id="view-events" style="display:none;">
+    <div class="sec-head">
+      <span class="sec-title">📌 Events</span>
+      <button class="sec-badge" onclick="openAddEvent()" style="cursor:pointer;">+ Add</button>
+    </div>
+    <div class="card" id="eventsList"></div>
+  </div>
+</div>
+
+<!-- ===== PAGE 2: GOALS ===== -->
+<div class="page" id="page-goals">
+  <div class="sec-head">
+    <span class="sec-title">🌟 My Goals</span>
+    <button class="sec-badge" onclick="openAddGoal()" style="cursor:pointer;">+ Add</button>
+  </div>
+  <div id="goalsList"></div>
+</div>
+
+<!-- ===== PAGE 3: HABITS ===== -->
+<div class="page" id="page-habits">
+  <div class="sec-head">
+    <span class="sec-title">⚡ Habit Tracker</span>
+    <span class="sec-badge" id="habitDateLabel"></span>
+  </div>
+  <div id="habitsByCategory"></div>
+</div>
+
+<!-- ===== PAGE 4: REMINDER ===== -->
+<div class="page" id="page-reminder">
+  <div class="view-switch">
+    <button class="vs-btn active" onclick="switchReminderView('alarm', this)">⏰ Reminders</button>
+    <button class="vs-btn" onclick="switchReminderView('todo', this)">📝 To-Do</button>
+  </div>
+  <div id="rview-alarm">
+    <div class="sec-head">
+      <span class="sec-title">⏰ Reminders</span>
+      <button class="sec-badge" onclick="openAddReminder()" style="cursor:pointer;">+ Add</button>
+    </div>
+    <div class="card" id="reminderList"></div>
+  </div>
+  <div id="rview-todo" style="display:none;">
+    <div class="sec-head">
+      <span class="sec-title">📝 To-Do Today</span>
+      <button class="sec-badge" onclick="openAddTodo()" style="cursor:pointer;">+ Add</button>
+    </div>
+    <div class="card" id="todoList"></div>
+  </div>
+</div>
+
+<!-- ===== PAGE 5: VOCAB ===== -->
+<div class="page" id="page-vocab">
+  <div class="view-switch">
+    <button class="vs-btn active" onclick="switchVocabView('list', this)">📖 Vocabulary</button>
+    <button class="vs-btn" onclick="switchVocabView('flash', this)">🃏 Flashcard</button>
+  </div>
+  <div id="vview-list">
+    <div class="sec-head">
+      <span class="sec-title">📖 Vocabulary List</span>
+      <button class="sec-badge" onclick="openAddVocab()" style="cursor:pointer;">+ Add Word</button>
+    </div>
+    <div class="card" id="vocabList"></div>
+  </div>
+  <div id="vview-flash" style="display:none;">
+    <div class="sec-head"><span class="sec-title">🃏 Flashcard</span></div>
+    <div class="flashcard-area" onclick="flipCard()" id="flashArea">
+      <div class="flashcard-inner" id="flashInner">
+        <div class="flashcard-face flashcard-front">
+          <div class="flashcard-word" id="flashWord">—</div>
+          <div class="flashcard-hint" id="flashLang">แตะเพื่อดูความหมาย</div>
+        </div>
+        <div class="flashcard-face flashcard-back">
+          <div class="flashcard-meaning" id="flashMeaning">—</div>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center; font-size:12px; color:var(--text3); margin-bottom:12px;" id="flashCounter"></div>
+    <div class="flashcard-nav" id="fcNav" style="display:none;">
+      <button class="fc-btn again" onclick="fcAnswer(false)">🔁 ยังจำไม่ได้</button>
+      <button class="fc-btn good" onclick="fcAnswer(true)">✅ จำได้แล้ว</button>
+    </div>
+    <div style="text-align:center; margin-top:12px;">
+      <button class="fc-btn" onclick="fcSkip()">⏭ ข้ามการ์ดนี้</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- end page-wrap -->
+
+<!-- NAV -->
+<nav class="nav">
+  <button class="nav-btn active" onclick="goPage('planner', this)">
+    <span class="icon">📅</span><span>Planner</span>
+  </button>
+  <button class="nav-btn" onclick="goPage('goals', this)">
+    <span class="icon">🌟</span><span>Goals</span>
+  </button>
+  <button class="nav-btn" onclick="goPage('habits', this)">
+    <span class="icon">⚡</span><span>Habits</span>
+  </button>
+  <button class="nav-btn" onclick="goPage('reminder', this)">
+    <span class="icon">⏰</span><span>Reminder</span>
+  </button>
+  <button class="nav-btn" onclick="goPage('vocab', this)">
+    <span class="icon">📖</span><span>Vocab</span>
+  </button>
+</nav>
+
+<!-- MODALS -->
+<div class="modal-bg" id="modalAddTask">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">➕ เพิ่ม Task</div>
+    <input class="input-field" id="newTaskTime" placeholder="เวลา เช่น 08:00" type="time">
+    <input class="input-field" id="newTaskName" placeholder="ชื่อ Task">
+    <select class="input-field" id="newTaskCat">
+      <option value="spiritual">🙏 Spiritual</option>
+      <option value="health">💪 Health</option>
+      <option value="learning">📚 Learning</option>
+      <option value="daily">🏠 Daily Life</option>
+      <option value="work">💼 Work</option>
+    </select>
+    <div class="btn-row">
+      <button class="btn btn-cancel" onclick="closeModal('modalAddTask')">ยกเลิก</button>
+      <button class="btn btn-primary" onclick="addTask()">เพิ่ม</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalAddVocab">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📝 จดศัพท์ใหม่</div>
+    <input class="input-field" id="newVocabWord" placeholder="คำศัพท์">
+    <input class="input-field" id="newVocabMeaning" placeholder="ความหมาย">
+    <input class="input-field" id="newVocabExample" placeholder="ประโยคตัวอย่าง (ถ้ามี)">
+    <select class="input-field" id="newVocabLang">
+      <option value="EN">🇬🇧 English</option>
+      <option value="JP">🇯🇵 ภาษาญี่ปุ่น</option>
+      <option value="ZH">🇨🇳 ภาษาจีน</option>
+      <option value="KR">🇰🇷 ภาษาเกาหลี</option>
+    </select>
+    <div class="btn-row">
+      <button class="btn btn-cancel" onclick="closeModal('modalAddVocab')">ยกเลิก</button>
+      <button class="btn btn-primary" onclick="addVocab()">บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalAddGoal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🌟 เพิ่มเป้าหมาย</div>
+    <input class="input-field" id="newGoalTitle" placeholder="ชื่อเป้าหมาย">
+    <input class="input-field" id="newGoalDesc" placeholder="รายละเอียด (ถ้ามี)">
+    <select class="input-field" id="newGoalIcon">
+      <option value="📚">📚 การเรียน</option>
+      <option value="💼">💼 การงาน</option>
+      <option value="💪">💪 สุขภาพ</option>
+      <option value="💰">💰 การเงิน</option>
+      <option value="✍️">✍️ ความคิดสร้างสรรค์</option>
+      <option value="🌏">🌏 อื่นๆ</option>
+    </select>
+    <div class="btn-row">
+      <button class="btn btn-cancel" onclick="closeModal('modalAddGoal')">ยกเลิก</button>
+      <button class="btn btn-primary" onclick="addGoal()">เพิ่ม</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalAddReminder">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">⏰ เพิ่มการแจ้งเตือน</div>
+    <input class="input-field" id="newRTime" type="time">
+    <input class="input-field" id="newRName" placeholder="ชื่อการแจ้งเตือน">
+    <div style="display:flex; gap:6px; margin-bottom:10px;" id="rDayPicker"></div>
+    <div class="btn-row">
+      <button class="btn btn-cancel" onclick="closeModal('modalAddReminder')">ยกเลิก</button>
+      <button class="btn btn-primary" onclick="addReminder()">เพิ่ม</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalAddTodo">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📝 เพิ่ม To-Do</div>
+    <input class="input-field" id="newTodoText" placeholder="สิ่งที่ต้องทำ">
+    <div class="btn-row">
+      <button class="btn btn-cancel" onclick="closeModal('modalAddTodo')">ยกเลิก</button>
+      <button class="btn btn-primary" onclick="addTodo()">เพิ่ม</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalAddEvent">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📌 เพิ่มกำหนดการ</div>
+    <input class="input-field" id="newEvDate" type="date">
+    <input class="input-field" id="newEvName" placeholder="ชื่อกำหนดการ">
+    <input class="input-field" id="newEvDesc" placeholder="รายละเอียด (ถ้ามี)">
+    <div class="btn-row">
+      <button class="btn btn-cancel" onclick="closeModal('modalAddEvent')">ยกเลิก</button>
+      <button class="btn btn-primary" onclick="addEvent()">เพิ่ม</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalNotif">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="notifTitle">⏰ แจ้งเตือน</div>
+    <p style="color:var(--text2); font-size:14px; margin-bottom:16px;" id="notifBody"></p>
+    <button class="btn btn-primary" onclick="closeModal('modalNotif')" style="width:100%;">รับทราบ ✓</button>
+  </div>
+</div>
+
+<script>
+// ===== STATE =====
+const DAYS_TH = ['อา','จ','อ','พ','พฤ','ศ','ส'];
+const DAYS_EN = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const CAT_COLORS = {
+  spiritual: { bg: 'var(--s-purple)', text: 'var(--s-purple-t)', emoji: '🙏' },
+  health:    { bg: 'var(--s-green)',  text: 'var(--s-green-t)',  emoji: '💪' },
+  learning:  { bg: 'var(--s-blue)',   text: 'var(--s-blue-t)',   emoji: '📚' },
+  daily:     { bg: 'var(--s-yellow)', text: 'var(--s-yellow-t)', emoji: '🏠' },
+  work:      { bg: 'var(--s-teal)',   text: 'var(--s-teal-t)',   emoji: '💼' },
+};
+
+let state = loadState();
+
+function defaultState() {
+  return {
+    theme: 'light',
+    tasks: {}, // key: YYYY-MM-DD, val: [{id,time,name,cat,done,subtasks:[{name,done}]}]
+    habits: [
+      { id:'h1', emoji:'🙏', name:'สวดมนต์', cat:'spiritual', days:[1,2,3,4,5,6,0], type:'do' },
+      { id:'h2', emoji:'🌅', name:'ออกกำลังกายตอนเช้า', cat:'health', days:[1,2,3,4,5,6,0], type:'do' },
+      { id:'h3', emoji:'🌆', name:'ออกกำลังกายตอนเย็น', cat:'health', days:[5,6,0], type:'do' },
+      { id:'h4', emoji:'💧', name:'ดื่มน้ำ 2,000 ml', cat:'health', days:[1,2,3,4,5,6,0], type:'water' },
+      { id:'h5', emoji:'📰', name:'อ่านข่าว EN', cat:'learning', days:[1,2,3,4,5,6,0], type:'do' },
+      { id:'h6', emoji:'🗞', name:'อ่านข่าว JP', cat:'learning', days:[1,2,3,4,5,6,0], type:'do' },
+      { id:'h7', emoji:'✏️', name:'จดศัพท์ใหม่', cat:'learning', days:[1,2,3,4,5,6,0], type:'do' },
+      { id:'h8', emoji:'📖', name:'อ่านหนังสือ', cat:'learning', days:[1,2,3,4,5], type:'do' },
+      { id:'h9', emoji:'🎓', name:'เรียนคอร์สออนไลน์', cat:'learning', days:[1,2,3,4,5,6,0], type:'do' },
+      { id:'h10', emoji:'🍳', name:'ทำอาหาร', cat:'daily', days:[1,2,3,4,5,6,0], type:'do' },
+      { id:'h11', emoji:'☕', name:'สตาร์บัคส์ ≤ 2 วัน/สัปดาห์', cat:'daily', days:[1,2,3,4,5,6,0], type:'limit', limit:2 },
+    ],
+    habitLog: {}, // key: YYYY-MM-DD, val: {hid: true/false/count}
+    waterLog: {}, // key: YYYY-MM-DD, val: number (cups, 1 cup = 250ml)
+    goals: [
+      { id:'g1', icon:'🎓', title:'สอบผ่าน TOEIC ได้คะแนนสูงขึ้น', desc:'ฝึกทำข้อสอบทุกวันเสาร์', tags:[{label:'ภาษา',bg:'var(--s-blue)',t:'var(--s-blue-t)'}] },
+      { id:'g2', icon:'🇯🇵', title:'สอบ JLPT N1', desc:'ทบทวนญี่ปุ่นสม่ำเสมอ + สอบใหม่', tags:[{label:'ภาษา',bg:'var(--s-pink)',t:'var(--s-pink-t)'}] },
+      { id:'g3', icon:'🏆', title:'ได้ใบ Certificate จากคอร์สออนไลน์', desc:'เลือกคอร์สและเรียนจนจบ', tags:[{label:'Learning',bg:'var(--s-green)',t:'var(--s-green-t)'}] },
+      { id:'g4', icon:'✍️', title:'แต่งนิยายให้จบสักเล่ม', desc:'เขียนทีละน้อย สะสมไปเรื่อยๆ', tags:[{label:'Creativity',bg:'var(--s-orange)',t:'var(--s-orange-t)'}] },
+    ],
+    reminders: [
+      { id:'r1', time:'05:00', name:'ออกกำลังกาย 🌅', days:[1,2,3,4], on:true },
+      { id:'r2', time:'05:20', name:'เตรียมตัวไปทำงาน 👔', days:[1,2,3,4], on:true },
+      { id:'r3', time:'07:00', name:'เดินทาง — อ่านข่าว EN/JP + จดศัพท์ 🚃', days:[1,2,3,4], on:true },
+      { id:'r4', time:'08:10', name:'อ่านหนังสือ 📖', days:[1,2,3,4], on:true },
+      { id:'r5', time:'08:40', name:'เตรียมตัวก่อนเริ่มงาน 💼', days:[1,2,3,4], on:true },
+      { id:'r6', time:'09:00', name:'เริ่มงาน 💼', days:[1,2,3,4,5], on:true },
+      { id:'r7', time:'12:00', name:'พักกลางวัน 🍱', days:[1,2,3,4,5], on:true },
+      { id:'r8', time:'13:30', name:'กลับไปทำงาน 💼', days:[1,2,3,4,5], on:true },
+      { id:'r9', time:'17:30', name:'เดินทางกลับบ้าน 🚃', days:[1,2,3,4,5], on:true },
+      { id:'r10', time:'19:30', name:'ออกกำลังกาย 🏃', days:[5], on:true },
+      { id:'r11', time:'19:30', name:'ทำอาหาร 🍳', days:[1,2,3,4], on:true },
+      { id:'r12', time:'20:10', name:'อาบน้ำ 🚿', days:[5], on:true },
+      { id:'r13', time:'21:00', name:'อาบน้ำ 🚿', days:[1,2,3,4], on:true },
+      { id:'r14', time:'21:00', name:'เรียนคอร์สออนไลน์ 🎓', days:[5], on:true },
+      { id:'r15', time:'21:30', name:'เรียนคอร์สออนไลน์ 🎓', days:[1,2,3,4], on:true },
+      { id:'r16', time:'22:30', name:'Free time ✨', days:[1,2,3,4], on:true },
+      { id:'r17', time:'23:00', name:'ถึงเวลานอนแล้ว 😴', days:[1,2,3,4,5], on:true },
+      { id:'r18', time:'09:10', name:'ออกกำลังกาย 🌅', days:[6], on:true },
+      { id:'r19', time:'09:30', name:'อ่านข่าว + จดศัพท์ 📰', days:[6], on:true },
+      { id:'r20', time:'11:00', name:'ทำข้อสอบ TOEIC 📝', days:[6], on:true },
+      { id:'r21', time:'13:00', name:'ออกกำลังกาย 🏃', days:[6,0], on:true },
+      { id:'r22', time:'13:40', name:'ทำอาหาร 🍳', days:[6,0], on:true },
+      { id:'r23', time:'16:40', name:'ทบทวนภาษาญี่ปุ่น 🇯🇵', days:[6], on:true },
+      { id:'r24', time:'18:40', name:'เรียนคอร์สออนไลน์ 🎓', days:[6], on:true },
+      { id:'r25', time:'20:40', name:'Free time ✨', days:[6], on:true },
+      { id:'r26', time:'00:00', name:'ถึงเวลานอนแล้ว 😴', days:[5,6], on:true },
+      { id:'r27', time:'11:10', name:'ออกกำลังกาย 🌅', days:[0], on:true },
+      { id:'r28', time:'11:30', name:'อ่านข่าว + จดศัพท์ 📰', days:[0], on:true },
+      { id:'r29', time:'16:40', name:'Free time ✨', days:[0], on:true },
+      { id:'r30', time:'23:00', name:'ถึงเวลานอนแล้ว 😴', days:[0], on:true },
+    ],
+    todos: [],
+    events: [],
+    vocab: [],
+    courses: [
+      { id:'c1', name:'การตลาด', weeks:3, startWeek: getISOWeek() },
+      { id:'c2', name:'行動経済学', weeks:3, startWeek: getISOWeek()+3 },
+      { id:'c3', name:'Excel', weeks:2, startWeek: getISOWeek()+6 },
+      { id:'c4', name:'ภาษาจีน', weeks:3, startWeek: getISOWeek()+8 },
+      { id:'c5', name:'ความรู้ธุรกิจ', weeks:3, startWeek: getISOWeek()+11 },
+      { id:'c6', name:'การลงทุน', weeks:3, startWeek: getISOWeek()+14 },
+      { id:'c7', name:'คอร์ส edX/UTokyo', weeks:4, startWeek: getISOWeek()+17 },
+    ],
+    flashIdx: 0,
+    fcShown: false,
+  };
+}
+
+function getISOWeek() {
+  const d = new Date(); const day = d.getDay();
+  const diff = d.getDate() - day + (day===0?-6:1);
+  const mon = new Date(d.setDate(diff));
+  const yearStart = new Date(mon.getFullYear(),0,1);
+  return Math.ceil(((mon - yearStart)/86400000 + 1)/7);
+}
+
+function loadState() {
+  try {
+    const s = localStorage.getItem('plannerState');
+    if (s) return Object.assign(defaultState(), JSON.parse(s));
+  } catch(e) {}
+  return defaultState();
+}
+
+function saveState() {
+  try { localStorage.setItem('plannerState', JSON.stringify(state)); } catch(e) {}
+}
+
+// ===== THEME =====
+function toggleTheme() {
+  state.theme = state.theme === 'light' ? 'dark' : 'light';
+  applyTheme(); saveState();
+}
+function applyTheme() {
+  document.body.setAttribute('data-theme', state.theme);
+  const btn = document.getElementById('themeBtn');
+  btn.textContent = state.theme === 'dark' ? '☀️ Light' : '🌙 Dark';
+}
+
+// Stars for dark mode
+function initStars() {
+  const wrap = document.getElementById('starsWrap');
+  wrap.innerHTML = '';
+  for (let i=0; i<60; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const sz = Math.random()*2+1;
+    s.style.cssText = `width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--dur:${2+Math.random()*3}s;--delay:${Math.random()*3}s;opacity:${0.2+Math.random()*0.6}`;
+    wrap.appendChild(s);
+  }
+}
+
+// ===== NAV =====
+function goPage(page, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderPage(page);
+}
+
+function renderPage(page) {
+  if (page==='planner') renderDailyView();
+  if (page==='habits') renderHabits();
+  if (page==='goals') renderGoals();
+  if (page==='reminder') renderReminders();
+  if (page==='vocab') renderVocab();
+}
+
+// ===== VIEW SWITCH =====
+function switchView(view, btn) {
+  ['daily','weekly','events'].forEach(v => {
+    document.getElementById('view-'+v).style.display = v===view ? '' : 'none';
+  });
+  document.querySelectorAll('#page-planner .vs-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if (view==='daily') renderDailyView();
+  if (view==='weekly') renderWeeklyView();
+  if (view==='events') renderEvents();
+}
+function switchReminderView(view, btn) {
+  ['alarm','todo'].forEach(v => {
+    document.getElementById('rview-'+v).style.display = v===view ? '' : 'none';
+  });
+  document.querySelectorAll('#page-reminder .vs-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if (view==='todo') renderTodos();
+}
+function switchVocabView(view, btn) {
+  ['list','flash'].forEach(v => {
+    document.getElementById('vview-'+v).style.display = v===view ? '' : 'none';
+  });
+  document.querySelectorAll('#page-vocab .vs-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if (view==='flash') renderFlashcard();
+}
+
+// ===== DATE UTILS =====
+function todayStr() {
+  return new Date().toISOString().slice(0,10);
+}
+function dateKey(d) {
+  return d.toISOString().slice(0,10);
+}
+function formatDateTH(d) {
+  const months = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()+543}`;
+}
+
+// ===== DAILY =====
+let selectedDate = todayStr();
+
+function renderDailyView() {
+  // date tabs (7 days centered on today)
+  const tabsCont = document.getElementById('dateTabs');
+  tabsCont.innerHTML = '';
+  const today = new Date();
+  for (let i=-2; i<=4; i++) {
+    const d = new Date(today); d.setDate(today.getDate()+i);
+    const key = dateKey(d);
+    const tab = document.createElement('div');
+    tab.className = 'date-tab' + (key===selectedDate?' active':'');
+    tab.innerHTML = `<div class="dt-day">${DAYS_TH[d.getDay()]}</div><div class="dt-num">${d.getDate()}</div>`;
+    tab.onclick = () => { selectedDate=key; renderDailyView(); };
+    tabsCont.appendChild(tab);
+  }
+  // top date label
+  const selD = new Date(selectedDate);
+  document.getElementById('topDate').textContent = formatDateTH(selD);
+  renderTasksForDay(selD);
+  renderWater();
+  renderCurrentCourse();
+}
+
+function getDayTasks(d) {
+  const dow = d.getDay(); // 0=Sun,1=Mon,...6=Sat
+  const base = [
+    // Mon-Thu
+    ...(([1,2,3,4].includes(dow))?[
+      { time:'05:00', name:'ออกกำลังกายตอนเช้า 🌅', cat:'health' },
+      { time:'05:20', name:'เตรียมตัวไปทำงาน 👔', cat:'daily',
+        subtasks:['อาบน้ำ','แต่งตัว'] },
+      { time:'07:00', name:'เดินทางไปทำงาน 🚃', cat:'daily',
+        subtasks:['อ่านข่าว EN อย่างน้อย 1 ข่าว','อ่านข่าว JP อย่างน้อย 1 ข่าว','จดศัพท์ที่ไม่รู้'] },
+      { time:'08:10', name:'อ่านหนังสือ 📖', cat:'learning' },
+      { time:'08:40', name:'เตรียมตัวก่อนเริ่มงาน 💼', cat:'work' },
+      { time:'09:00', name:'ทำงาน 💼', cat:'work' },
+      { time:'12:00', name:'พักกลางวัน 🍱', cat:'daily' },
+      { time:'13:30', name:'ทำงาน (ต่อ) 💼', cat:'work' },
+      { time:'17:30', name:'เดินทางกลับบ้าน 🚃', cat:'daily' },
+      { time:'19:30', name:'ทำอาหารสำหรับวันถัดไป 🍳', cat:'daily' },
+      { time:'21:00', name:'อาบน้ำ 🚿', cat:'daily' },
+      { time:'21:30', name:'เรียนคอร์สออนไลน์ 🎓', cat:'learning' },
+      { time:'22:30', name:'Free time ✨', cat:'daily' },
+      { time:'23:00', name:'นอน 😴', cat:'daily' },
+    ]:[]),
+    // Friday
+    ...(dow===5?[
+      { time:'05:00', name:'ออกกำลังกายตอนเช้า 🌅', cat:'health' },
+      { time:'05:20', name:'เตรียมตัวไปทำงาน 👔', cat:'daily',
+        subtasks:['อาบน้ำ','แต่งตัว'] },
+      { time:'07:00', name:'เดินทางไปทำงาน 🚃', cat:'daily',
+        subtasks:['อ่านข่าว EN อย่างน้อย 1 ข่าว','อ่านข่าว JP อย่างน้อย 1 ข่าว','จดศัพท์ที่ไม่รู้'] },
+      { time:'08:10', name:'อ่านหนังสือ 📖', cat:'learning' },
+      { time:'08:40', name:'เตรียมตัวก่อนเริ่มงาน 💼', cat:'work' },
+      { time:'09:00', name:'ทำงาน 💼', cat:'work' },
+      { time:'12:00', name:'พักกลางวัน 🍱', cat:'daily' },
+      { time:'13:30', name:'ทำงาน (ต่อ) 💼', cat:'work' },
+      { time:'17:30', name:'เดินทางกลับบ้าน 🚃', cat:'daily' },
+      { time:'19:30', name:'ออกกำลังกายตอนเย็น 🏃', cat:'health' },
+      { time:'20:10', name:'อาบน้ำ 🚿', cat:'daily' },
+      { time:'21:00', name:'เรียนคอร์สออนไลน์ 🎓', cat:'learning' },
+      { time:'23:00', name:'Free time ✨', cat:'daily' },
+      { time:'00:00', name:'นอน 😴', cat:'daily' },
+    ]:[]),
+    // Saturday
+    ...(dow===6?[
+      { time:'09:10', name:'ออกกำลังกายตอนเช้า 🌅', cat:'health' },
+      { time:'09:30', name:'อ่านข่าว 📰', cat:'learning',
+        subtasks:['อ่านข่าว EN อย่างน้อย 1 ข่าว','อ่านข่าว JP อย่างน้อย 1 ข่าว','จดศัพท์ที่ไม่รู้'] },
+      { time:'10:30', name:'พัก ☕', cat:'daily' },
+      { time:'11:00', name:'ทำข้อสอบ TOEIC 📝', cat:'learning' },
+      { time:'12:30', name:'พัก 🍱', cat:'daily' },
+      { time:'13:00', name:'ออกกำลังกายตอนเย็น 🏃', cat:'health' },
+      { time:'13:40', name:'ทำอาหาร + กินข้าว 🍳', cat:'daily' },
+      { time:'16:40', name:'ทบทวนภาษาญี่ปุ่น 🇯🇵', cat:'learning' },
+      { time:'18:10', name:'พัก 🛋️', cat:'daily' },
+      { time:'18:40', name:'เรียนคอร์สออนไลน์ 🎓', cat:'learning' },
+      { time:'20:40', name:'Free time ✨', cat:'daily' },
+      { time:'00:00', name:'นอน 😴', cat:'daily' },
+    ]:[]),
+    // Sunday
+    ...(dow===0?[
+      { time:'11:10', name:'ออกกำลังกายตอนเช้า 🌅', cat:'health' },
+      { time:'11:30', name:'อ่านข่าว 📰', cat:'learning',
+        subtasks:['อ่านข่าว EN อย่างน้อย 1 ข่าว','อ่านข่าว JP อย่างน้อย 1 ข่าว','จดศัพท์ที่ไม่รู้'] },
+      { time:'12:30', name:'พัก 🍱', cat:'daily' },
+      { time:'13:00', name:'ออกกำลังกายตอนเย็น 🏃', cat:'health' },
+      { time:'13:40', name:'ทำอาหาร + กินข้าว 🍳', cat:'daily' },
+      { time:'16:40', name:'Free time ✨', cat:'daily' },
+      { time:'23:00', name:'นอน 😴', cat:'daily' },
+    ]:[]),
+  ];
+  return base;
+}
+
+function renderTasksForDay(d) {
+  const key = dateKey(d);
+  if (!state.tasks[key]) state.tasks[key] = [];
+  const baseTasks = getDayTasks(d);
+  // Merge base with user-added
+  const userTasks = state.tasks[key].filter(t => t.custom);
+  const allTasks = [
+    ...baseTasks.map((t,i) => {
+      const saved = state.tasks[key].find(s => !s.custom && s.baseIdx===i);
+      return { ...t, id:'b'+i, baseIdx:i, done: saved ? saved.done : false,
+        subtasks: (t.subtasks||[]).map((sn,si) => {
+          const ss = saved && saved.subtasks ? saved.subtasks[si] : null;
+          return { name:sn, done: ss ? ss.done : false };
+        })
+      };
+    }),
+    ...userTasks
+  ].sort((a,b) => a.time.localeCompare(b.time));
+
+  const cont = document.getElementById('dailyTasks');
+  cont.innerHTML = '';
+
+  if (allTasks.length===0) {
+    cont.innerHTML = '<div class="card" style="text-align:center;color:var(--text3);padding:24px;">ไม่มี Task วันนี้ กด + เพื่อเพิ่ม</div>';
+    return;
+  }
+
+  const card = document.createElement('div'); card.className='card'; card.style.padding='4px 16px';
+  allTasks.forEach(task => {
+    const cat = CAT_COLORS[task.cat] || CAT_COLORS.daily;
+    const item = document.createElement('div'); item.className='task-item';
+    const hasSub = task.subtasks && task.subtasks.length > 0;
+    item.innerHTML = `
+      <div class="task-check ${task.done?'done':''}" onclick="toggleTask('${key}','${task.id}',${task.baseIdx??-1})"></div>
+      <div class="task-info">
+        <div class="task-time">${task.time}</div>
+        <div class="task-name ${task.done?'done':''}">${task.name}</div>
+        ${hasSub ? `<div class="subtask-list">${task.subtasks.map((s,si)=>`
+          <div class="subtask-item">
+            <div class="subtask-check ${s.done?'done':''}" onclick="toggleSubtask('${key}','${task.id}',${task.baseIdx??-1},${si})"></div>
+            <span style="${s.done?'text-decoration:line-through;color:var(--text3)':''}">${s.name}</span>
+          </div>`).join('')}
+        </div>` : ''}
+      </div>
+      <span class="task-cat" style="background:${cat.bg};color:${cat.text};">${cat.emoji}</span>
+    `;
+    card.appendChild(item);
+  });
+  cont.appendChild(card);
+}
+
+function toggleTask(dateKey, id, baseIdx) {
+  if (!state.tasks[dateKey]) state.tasks[dateKey] = [];
+  if (baseIdx >= 0) {
+    let saved = state.tasks[dateKey].find(t => !t.custom && t.baseIdx===baseIdx);
+    if (!saved) { saved = { baseIdx, done:false, subtasks:[] }; state.tasks[dateKey].push(saved); }
+    saved.done = !saved.done;
+  } else {
+    const t = state.tasks[dateKey].find(t => t.id===id);
+    if (t) t.done = !t.done;
+  }
+  saveState(); renderDailyView();
+}
+function toggleSubtask(dk, id, baseIdx, si) {
+  if (!state.tasks[dk]) state.tasks[dk] = [];
+  let saved = state.tasks[dk].find(t => !t.custom && t.baseIdx===baseIdx);
+  if (!saved) { saved = { baseIdx, done:false, subtasks:[] }; state.tasks[dk].push(saved); }
+  if (!saved.subtasks[si]) saved.subtasks[si] = { done:false };
+  saved.subtasks[si].done = !saved.subtasks[si].done;
+  saveState(); renderDailyView();
+}
+
+// ===== WATER =====
+function renderWater() {
+  const key = selectedDate;
+  const cups = state.waterLog[key] || 0;
+  const total = 8; // 8 cups = 2000ml
+  document.getElementById('waterLabel').textContent = `${cups*250} / 2000 ml`;
+  const cont = document.getElementById('waterCups');
+  cont.innerHTML = '';
+  for (let i=0; i<total; i++) {
+    const c = document.createElement('div');
+    c.className = 'water-cup' + (i<cups?' filled':'');
+    c.innerHTML = '<span class="cup-ico">💧</span>';
+    c.onclick = () => { state.waterLog[key]=(i<cups?i:i+1); saveState(); renderWater(); };
+    cont.appendChild(c);
+  }
+}
+
+// ===== WEEKLY =====
+function renderWeeklyView() {
+  const cont = document.getElementById('weekGrid');
+  cont.innerHTML = '';
+  const today = new Date();
+  for (let d=1; d<=7; d++) {
+    const day = new Date(today);
+    const diff = d - (today.getDay()===0?7:today.getDay());
+    day.setDate(today.getDate()+diff);
+    const dow = day.getDay();
+    const col = document.createElement('div'); col.className='week-col';
+    col.innerHTML = `<div class="week-col-head">${DAYS_TH[dow]}<br>${day.getDate()}</div>`;
+    const tasks = getDayTasks(day).slice(0,5);
+    tasks.forEach(t => {
+      const cat = CAT_COLORS[t.cat]||CAT_COLORS.daily;
+      const wt = document.createElement('div');
+      wt.className='week-task';
+      wt.style.cssText=`background:${cat.bg};color:${cat.text};`;
+      wt.textContent = t.name.replace(/[🌅👔🚃📖💼🍱🏃🚿🎓✨😴📰📝🍳🛋️🇯🇵]/g,'').trim().slice(0,10);
+      col.appendChild(wt);
+    });
+    cont.appendChild(col);
+  }
+  renderCourseQueue();
+}
+
+// ===== COURSES =====
+function renderCurrentCourse() {
+  const currentWeek = getISOWeek();
+  const current = state.courses.find(c => currentWeek >= c.startWeek && currentWeek < c.startWeek+c.weeks);
+  const card = document.getElementById('currentCourseCard');
+  if (!current) { card.innerHTML='<div style="color:var(--text3);font-size:13px;">ยังไม่มีคอร์สสัปดาห์นี้</div>'; return; }
+  const elapsed = currentWeek - current.startWeek + 1;
+  const pct = Math.min(100, Math.round(elapsed/current.weeks*100));
+  card.innerHTML = `
+    <div style="font-size:13px;color:var(--text3);margin-bottom:4px;">วิชาที่กำลังเรียน</div>
+    <div style="font-size:16px;font-weight:700;color:var(--text);">📚 ${current.name}</div>
+    <div style="font-size:12px;color:var(--text2);margin-top:4px;">สัปดาห์ที่ ${elapsed}/${current.weeks}</div>
+    <div class="prog-bar" style="margin-top:8px;"><div class="prog-fill" style="width:${pct}%;background:var(--accent);"></div></div>
+  `;
+}
+function renderCourseQueue() {
+  const cont = document.getElementById('courseQueue');
+  cont.innerHTML = '';
+  const currentWeek = getISOWeek();
+  state.courses.forEach(c => {
+    const isCurrent = currentWeek >= c.startWeek && currentWeek < c.startWeek+c.weeks;
+    const elapsed = Math.max(0, Math.min(c.weeks, currentWeek - c.startWeek + 1));
+    const pct = Math.min(100, Math.round(elapsed/c.weeks*100));
+    const card = document.createElement('div');
+    card.className = 'course-card' + (isCurrent?' current':'');
+    card.innerHTML = `
+      <div class="cw-num">${isCurrent?'🔵 ปัจจุบัน':'⬜ รอคิว'}</div>
+      <div class="cw-name">${c.name}</div>
+      <div class="cw-days">${c.weeks} สัปดาห์</div>
+      <div class="mini-prog"><div class="mini-fill" style="width:${pct}%;"></div></div>
+    `;
+    cont.appendChild(card);
+  });
+}
+
+// ===== HABITS =====
+function renderHabits() {
+  const today = new Date();
+  const dow = today.getDay();
+  document.getElementById('habitDateLabel').textContent = formatDateTH(today);
+  const key = todayStr();
+  if (!state.habitLog[key]) state.habitLog[key] = {};
+
+  // Group by category
+  const cats = { spiritual:'🙏 Spiritual', health:'💪 Health', learning:'📚 Learning', daily:'🏠 Daily Life' };
+  const cont = document.getElementById('habitsByCategory');
+  cont.innerHTML = '';
+
+  Object.entries(cats).forEach(([catKey, catLabel]) => {
+    const habits = state.habits.filter(h => h.cat===catKey && h.days.includes(dow));
+    if (!habits.length) return;
+    const catColor = CAT_COLORS[catKey];
+
+    const head = document.createElement('div'); head.className='sec-head';
+    head.innerHTML = `<span class="sec-title">${catLabel}</span>`;
+    cont.appendChild(head);
+
+    const card = document.createElement('div'); card.className='card'; card.style.padding='4px 16px';
+    habits.forEach(h => {
+      const item = document.createElement('div'); item.className='habit-item';
+      // Last 7 days dots
+      const dots = [];
+      for (let i=6; i>=0; i--) {
+        const d = new Date(); d.setDate(d.getDate()-i);
+        const dk = dateKey(d);
+        const active = h.days.includes(d.getDay());
+        const done = state.habitLog[dk] && state.habitLog[dk][h.id];
+        const isToday = i===0;
+        if (active) {
+          dots.push(`<div class="habit-dot ${done?'done':''} ${isToday?'today-dot':''}" 
+            style="${done?`background:${catColor.bg};border-color:${catColor.text};color:${catColor.text};`:''}${isToday&&!done?'border-color:var(--accent);':''}"
+            onclick="toggleHabit('${h.id}','${dk}')"
+          ><span>${done?'✓':DAYS_TH[d.getDay()]}</span><span class="dot-day">${d.getDate()}</span></div>`);
+        } else {
+          dots.push(`<div class="habit-dot skip" title="ไม่ได้ทำวันนี้"><span style="font-size:7px;">—</span></div>`);
+        }
+      }
+      // Streak
+      let streak = 0;
+      for (let i=0; i<30; i++) {
+        const d = new Date(); d.setDate(d.getDate()-i);
+        const dk = dateKey(d);
+        if (h.days.includes(d.getDay()) && state.habitLog[dk] && state.habitLog[dk][h.id]) streak++;
+        else if (h.days.includes(d.getDay())) break;
+      }
+      item.innerHTML = `
+        <div class="habit-emoji">${h.emoji}</div>
+        <div class="habit-info">
+          <div class="habit-name">${h.name}</div>
+          <div class="habit-streak">${streak>0?`🔥 ${streak} วันติดต่อกัน`:'เริ่มกันเลย!'}</div>
+        </div>
+        <div class="habit-dots">${dots.join('')}</div>
+      `;
+      card.appendChild(item);
+    });
+    cont.appendChild(card);
+  });
+}
+
+function toggleHabit(hid, dk) {
+  if (!state.habitLog[dk]) state.habitLog[dk] = {};
+  state.habitLog[dk][hid] = !state.habitLog[dk][hid];
+  saveState(); renderHabits();
+}
+
+// ===== GOALS =====
+function renderGoals() {
+  const cont = document.getElementById('goalsList');
+  cont.innerHTML = '';
+  if (!state.goals.length) {
+    cont.innerHTML = '<div class="card" style="text-align:center;color:var(--text3);padding:24px;">ยังไม่มีเป้าหมาย กด + เพิ่มได้เลย</div>';
+    return;
+  }
+  state.goals.forEach((g,i) => {
+    const card = document.createElement('div'); card.className='card';
+    card.innerHTML = `
+      <div class="goal-item">
+        <div class="goal-icon">${g.icon}</div>
+        <div class="goal-body">
+          <div class="goal-title">${g.title}</div>
+          ${g.desc?`<div class="goal-desc">${g.desc}</div>`:''}
+          ${g.tags&&g.tags.length?`<div class="goal-tags">${g.tags.map(t=>`<span class="goal-tag" style="background:${t.bg};color:${t.t};">${t.label}</span>`).join('')}</div>`:''}
+        </div>
+        <div onclick="deleteGoal(${i})" style="color:var(--text3);font-size:18px;cursor:pointer;padding:4px;">×</div>
+      </div>
+    `;
+    cont.appendChild(card);
+  });
+}
+function deleteGoal(i) { state.goals.splice(i,1); saveState(); renderGoals(); }
+function openAddGoal() { document.getElementById('modalAddGoal').classList.add('open'); }
+function addGoal() {
+  const title = document.getElementById('newGoalTitle').value.trim();
+  if (!title) return;
+  state.goals.push({
+    id: 'g'+Date.now(), title,
+    desc: document.getElementById('newGoalDesc').value.trim(),
+    icon: document.getElementById('newGoalIcon').value,
+    tags:[]
+  });
+  saveState(); closeModal('modalAddGoal');
+  document.getElementById('newGoalTitle').value='';
+  document.getElementById('newGoalDesc').value='';
+  renderGoals();
+}
+
+// ===== REMINDERS =====
+function renderReminders() {
+  const dow = new Date().getDay();
+  const cont = document.getElementById('reminderList');
+  const sorted = [...state.reminders].sort((a,b)=>a.time.localeCompare(b.time));
+  cont.innerHTML = '';
+  if (!sorted.length) { cont.innerHTML='<div style="color:var(--text3);text-align:center;padding:20px;font-size:13px;">ยังไม่มีการแจ้งเตือน</div>'; return; }
+  sorted.forEach(r => {
+    const item = document.createElement('div'); item.className='remind-item';
+    const dayDots = [1,2,3,4,5,6,0].map(d=>`<div class="remind-day ${r.days.includes(d)?'on':''}">${DAYS_TH[d]}</div>`).join('');
+    item.innerHTML = `
+      <div class="remind-time">${r.time}</div>
+      <div style="flex:1;min-width:0;">
+        <div class="remind-name">${r.name}</div>
+        <div class="remind-days" style="margin-top:4px;">${dayDots}</div>
+      </div>
+      <div class="remind-toggle ${r.on?'on':''}" onclick="toggleReminder('${r.id}')"></div>
+    `;
+    cont.appendChild(item);
+  });
+}
+function toggleReminder(rid) {
+  const r = state.reminders.find(r=>r.id===rid);
+  if (r) r.on = !r.on;
+  saveState(); renderReminders();
+}
+function openAddReminder() {
+  const picker = document.getElementById('rDayPicker');
+  picker.innerHTML = [1,2,3,4,5,6,0].map(d=>`
+    <div class="remind-day" style="width:32px;height:32px;font-size:12px;cursor:pointer;border:1.5px solid var(--border);" 
+      onclick="this.classList.toggle('on')" data-day="${d}">${DAYS_TH[d]}</div>`).join('');
+  document.getElementById('modalAddReminder').classList.add('open');
+}
+function addReminder() {
+  const time = document.getElementById('newRTime').value;
+  const name = document.getElementById('newRName').value.trim();
+  if (!time||!name) return;
+  const days = [...document.querySelectorAll('#rDayPicker .remind-day.on')].map(el=>+el.dataset.day);
+  state.reminders.push({ id:'r'+Date.now(), time, name, days, on:true });
+  saveState(); closeModal('modalAddReminder');
+  document.getElementById('newRTime').value='';
+  document.getElementById('newRName').value='';
+  renderReminders();
+}
+
+// ===== TODOS =====
+function renderTodos() {
+  const cont = document.getElementById('todoList');
+  cont.innerHTML = '';
+  if (!state.todos.length) {
+    cont.innerHTML='<div style="color:var(--text3);text-align:center;padding:20px;font-size:13px;">ยังไม่มี To-Do ✓</div>';
+    return;
+  }
+  state.todos.forEach((t,i) => {
+    const item = document.createElement('div'); item.className='todo-item';
+    item.innerHTML = `
+      <div class="todo-check ${t.done?'done':''}" onclick="toggleTodo(${i})"></div>
+      <span class="todo-text ${t.done?'done':''}">${t.text}</span>
+      <span class="todo-del" onclick="deleteTodo(${i})">×</span>
+    `;
+    cont.appendChild(item);
+  });
+}
+function toggleTodo(i) { state.todos[i].done=!state.todos[i].done; saveState(); renderTodos(); }
+function deleteTodo(i) { state.todos.splice(i,1); saveState(); renderTodos(); }
+function openAddTodo() { document.getElementById('modalAddTodo').classList.add('open'); }
+function addTodo() {
+  const text = document.getElementById('newTodoText').value.trim();
+  if (!text) return;
+  state.todos.push({ id:'t'+Date.now(), text, done:false });
+  saveState(); closeModal('modalAddTodo');
+  document.getElementById('newTodoText').value='';
+  renderTodos();
+}
+
+// ===== EVENTS =====
+function renderEvents() {
+  const cont = document.getElementById('eventsList');
+  cont.innerHTML = '';
+  const sorted = [...state.events].sort((a,b)=>a.date.localeCompare(b.date));
+  if (!sorted.length) {
+    cont.innerHTML='<div style="color:var(--text3);text-align:center;padding:20px;font-size:13px;">ยังไม่มีกำหนดการ</div>';
+    return;
+  }
+  const months=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  sorted.forEach((e,i) => {
+    const d = new Date(e.date);
+    const item = document.createElement('div'); item.className='event-item';
+    item.innerHTML = `
+      <div class="event-date-box">
+        <div class="event-month">${months[d.getMonth()]}</div>
+        <div class="event-day-num">${d.getDate()}</div>
+      </div>
+      <div style="flex:1;">
+        <div class="event-name">${e.name}</div>
+        ${e.desc?`<div class="event-desc">${e.desc}</div>`:''}
+      </div>
+      <span onclick="deleteEvent(${i})" style="color:var(--text3);cursor:pointer;font-size:18px;padding:4px;">×</span>
+    `;
+    cont.appendChild(item);
+  });
+}
+function openAddEvent() { document.getElementById('modalAddEvent').classList.add('open'); }
+function addEvent() {
+  const date = document.getElementById('newEvDate').value;
+  const name = document.getElementById('newEvName').value.trim();
+  if (!date||!name) return;
+  state.events.push({ id:'e'+Date.now(), date, name, desc:document.getElementById('newEvDesc').value.trim() });
+  saveState(); closeModal('modalAddEvent');
+  document.getElementById('newEvDate').value='';
+  document.getElementById('newEvName').value='';
+  document.getElementById('newEvDesc').value='';
+  renderEvents();
+}
+function deleteEvent(i) { state.events.splice(i,1); saveState(); renderEvents(); }
+
+// ===== VOCAB & FLASHCARD =====
+function renderVocab() {
+  const cont = document.getElementById('vocabList');
+  cont.innerHTML = '';
+  const langColors = { EN:{bg:'var(--s-blue)',t:'var(--s-blue-t)'}, JP:{bg:'var(--s-pink)',t:'var(--s-pink-t)'}, ZH:{bg:'var(--s-orange)',t:'var(--s-orange-t)'}, KR:{bg:'var(--s-green)',t:'var(--s-green-t)'} };
+  if (!state.vocab.length) {
+    cont.innerHTML='<div style="color:var(--text3);text-align:center;padding:20px;font-size:13px;">ยังไม่มีคำศัพท์ กด + จดได้เลย</div>';
+    return;
+  }
+  state.vocab.slice().reverse().forEach((v,i) => {
+    const lc = langColors[v.lang]||langColors.EN;
+    const item = document.createElement('div'); item.className='vocab-item';
+    item.innerHTML = `
+      <span class="vocab-lang" style="background:${lc.bg};color:${lc.t};">${v.lang}</span>
+      <span class="vocab-word">${v.word}</span>
+      <span class="vocab-meaning">${v.meaning}${v.example?`<br><span style="font-size:11px;color:var(--text3);">${v.example}</span>`:''}</span>
+      <span onclick="deleteVocab(${state.vocab.length-1-i})" style="color:var(--text3);cursor:pointer;font-size:18px;padding:4px;">×</span>
+    `;
+    cont.appendChild(item);
+  });
+}
+function openAddVocab() { document.getElementById('modalAddVocab').classList.add('open'); }
+function addVocab() {
+  const word = document.getElementById('newVocabWord').value.trim();
+  const meaning = document.getElementById('newVocabMeaning').value.trim();
+  if (!word||!meaning) return;
+  state.vocab.push({ id:'v'+Date.now(), word, meaning,
+    example: document.getElementById('newVocabExample').value.trim(),
+    lang: document.getElementById('newVocabLang').value,
+    known: false });
+  saveState(); closeModal('modalAddVocab');
+  ['newVocabWord','newVocabMeaning','newVocabExample'].forEach(id=>document.getElementById(id).value='');
+  renderVocab();
+}
+function deleteVocab(i) { state.vocab.splice(i,1); saveState(); renderVocab(); }
+
+// Flashcard
+let fcQueue = [];
+let fcCurrent = 0;
+let fcFlipped = false;
+
+function renderFlashcard() {
+  fcQueue = state.vocab.filter(v=>!v.known).slice();
+  fcCurrent = 0; fcFlipped = false;
+  showFlashcard();
+}
+function showFlashcard() {
+  if (!fcQueue.length) {
+    document.getElementById('flashWord').textContent = '🎉';
+    document.getElementById('flashLang').textContent = 'ท่องจบแล้ว!';
+    document.getElementById('flashMeaning').textContent = 'เก่งมาก';
+    document.getElementById('flashCounter').textContent = '';
+    document.getElementById('fcNav').style.display='none';
+    return;
+  }
+  const v = fcQueue[fcCurrent % fcQueue.length];
+  document.getElementById('flashWord').textContent = v.word;
+  document.getElementById('flashLang').textContent = `[${v.lang}] — แตะเพื่อดูความหมาย`;
+  document.getElementById('flashMeaning').textContent = v.meaning;
+  document.getElementById('flashCounter').textContent = `${(fcCurrent%fcQueue.length)+1} / ${fcQueue.length} คำ`;
+  document.getElementById('flashInner').classList.remove('flipped');
+  document.getElementById('fcNav').style.display='none';
+  fcFlipped = false;
+}
+function flipCard() {
+  document.getElementById('flashInner').classList.toggle('flipped');
+  fcFlipped = !fcFlipped;
+  if (fcFlipped) document.getElementById('fcNav').style.display='flex';
+}
+function fcAnswer(known) {
+  const v = fcQueue[fcCurrent % fcQueue.length];
+  if (known) {
+    const idx = state.vocab.findIndex(x=>x.id===v.id);
+    if (idx>=0) state.vocab[idx].known = true;
+    fcQueue.splice(fcCurrent % fcQueue.length, 1);
+    if (fcCurrent >= fcQueue.length && fcQueue.length > 0) fcCurrent = 0;
+  } else {
+    fcCurrent = (fcCurrent+1) % fcQueue.length;
+  }
+  saveState(); showFlashcard();
+}
+function fcSkip() { fcCurrent = (fcCurrent+1) % (fcQueue.length||1); showFlashcard(); }
+
+// ===== TASK ADD =====
+function openFab() {
+  const page = document.querySelector('.page.active').id.replace('page-','');
+  if (page==='planner') document.getElementById('modalAddTask').classList.add('open');
+  else if (page==='vocab') openAddVocab();
+  else if (page==='goals') openAddGoal();
+  else if (page==='reminder') openAddReminder();
+}
+function addTask() {
+  const time = document.getElementById('newTaskTime').value || '09:00';
+  const name = document.getElementById('newTaskName').value.trim();
+  if (!name) return;
+  const key = selectedDate;
+  if (!state.tasks[key]) state.tasks[key] = [];
+  state.tasks[key].push({ id:'u'+Date.now(), time, name, cat:document.getElementById('newTaskCat').value, done:false, custom:true });
+  saveState(); closeModal('modalAddTask');
+  document.getElementById('newTaskName').value='';
+  renderDailyView();
+}
+
+// ===== MODAL =====
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-bg').forEach(m => {
+  m.addEventListener('click', e => { if (e.target===m) m.classList.remove('open'); });
+});
+
+// ===== NOTIFICATIONS =====
+function checkReminders() {
+  const now = new Date();
+  const dow = now.getDay();
+  const timeStr = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+  state.reminders.filter(r => r.on && r.days.includes(dow) && r.time===timeStr).forEach(r => {
+    document.getElementById('notifTitle').textContent = '⏰ ถึงเวลาแล้ว!';
+    document.getElementById('notifBody').textContent = r.name;
+    document.getElementById('modalNotif').classList.add('open');
+    if ('Notification' in window && Notification.permission==='granted') {
+      new Notification('✨ My Planner', { body: r.name, icon: '⏰' });
+    }
+  });
+}
+
+// Request notification permission
+if ('Notification' in window && Notification.permission==='default') {
+  Notification.requestPermission();
+}
+
+// ===== INIT =====
+function init() {
+  initStars();
+  applyTheme();
+  const today = new Date();
+  document.getElementById('topDate').textContent = formatDateTH(today);
+  renderDailyView();
+  renderHabits();
+  setInterval(checkReminders, 60000);
+}
+
+init();
+</script>
+</body>
+</html>
